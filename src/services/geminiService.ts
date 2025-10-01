@@ -1,8 +1,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Question } from '@/types';
 
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable is not set");
+// Improved check for the API key
+if (!process.env.API_KEY || process.env.API_KEY === 'undefined') {
+    // This error will be caught by the components to inform the user.
+    throw new Error("GEMINI_API_KEY_MISSING");
 }
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -21,7 +23,8 @@ export const generateSummaryFromText = async (text: string): Promise<string> => 
         return response.text;
     } catch (error) {
         console.error("Error generating summary:", error);
-        return "Desculpe, não foi possível gerar o resumo. Tente novamente.";
+        // Re-throw the error to be handled by the calling component
+        throw new Error("Falha ao gerar resumo. Verifique o console para mais detalhes.");
     }
 };
 
@@ -61,6 +64,7 @@ export const generateQuestionsFromText = async (text: string): Promise<Question[
 
     } catch (error) {
         console.error("Error generating questions:", error);
-        return [];
+        // Re-throw the error to be handled by the calling component
+        throw new Error("Falha ao gerar questões. Verifique o console para mais detalhes.");
     }
 };

@@ -8,6 +8,8 @@ import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
+const API_KEY_ERROR_MESSAGE = "A chave da API do Gemini não foi configurada. Por favor, adicione sua chave no painel de 'Secrets' à esquerda para usar as funcionalidades de IA.";
+
 interface PdfManagerProps {
   addDocument: (doc: PdfDocument) => void;
 }
@@ -82,9 +84,13 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
         });
 
         setGeneratedQuestions(questions);
-    } catch (error) {
-        console.error("Error processing with AI:", error);
-        alert("Ocorreu um erro ao se comunicar com a IA. Tente novamente.");
+    } catch (error: any) {
+        if (error.message === "GEMINI_API_KEY_MISSING") {
+            alert(API_KEY_ERROR_MESSAGE);
+        } else {
+            console.error("Error processing with AI:", error);
+            alert("Ocorreu um erro ao se comunicar com a IA. Tente novamente.");
+        }
     } finally {
         setIsLoading(false);
         setLoadingMessage('');

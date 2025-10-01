@@ -26,6 +26,7 @@ function createBlob(data: Float32Array): Blob {
   };
 }
 
+const API_KEY_ERROR_MESSAGE = "A chave da API do Gemini não foi configurada. Por favor, adicione sua chave no painel de 'Secrets' à esquerda para usar as funcionalidades de IA.";
 
 const RecordedClasses: React.FC<{
   addRecording: (rec: RecordedClass) => void;
@@ -43,8 +44,10 @@ const RecordedClasses: React.FC<{
 
   const startRecording = async () => {
     try {
-      if (!process.env.API_KEY) {
-        throw new Error("API_KEY não configurada.");
+      // This check is now inside geminiService, but we can keep a local one for immediate feedback.
+      if (!process.env.API_KEY || process.env.API_KEY === 'undefined') {
+        alert(API_KEY_ERROR_MESSAGE);
+        return;
       }
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -54,7 +57,6 @@ const RecordedClasses: React.FC<{
       setError(null);
       setIsRecording(true);
 
-      // FIX: Cast window to `any` to allow access to `webkitAudioContext` for older browser compatibility.
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
       audioContextRef.current = audioContext;
 
@@ -116,9 +118,13 @@ const RecordedClasses: React.FC<{
 
       sessionPromiseRef.current = sessionPromise;
 
-    } catch (err) {
-      console.error('Failed to start recording:', err);
-      setError('Não foi possível iniciar a gravação. Verifique as permissões do microfone.');
+    } catch (err: any) {
+      if (err.message === "GEMINI_API_KEY_MISSING") {
+          alert(API_KEY_ERROR_MESSAGE);
+      } else {
+        console.error('Failed to start recording:', err);
+        setError('Não foi possível iniciar a gravação. Verifique as permissões do microfone.');
+      }
       setIsRecording(false);
     }
   };
@@ -139,25 +145,35 @@ const RecordedClasses: React.FC<{
     }
     
     setIsSummarizing(true);
-    const summaryContent = await generateSummaryFromText(transcription);
-    setFinalSummary(summaryContent);
+    try {
+        const summaryContent = await generateSummaryFromText(transcription);
+        setFinalSummary(summaryContent);
 
-    const newRecording: RecordedClass = {
-        id: `rec-${Date.now()}`,
-        title: `Gravação de ${new Date().toLocaleString()}`,
-        date: new Date(),
-        transcription,
-        summary: {
-            id: `sum-rec-${Date.now()}`,
-            title: `Resumo da Gravação de ${new Date().toLocaleString()}`,
-            content: summaryContent,
-            sourceId: `rec-${Date.now()}`,
-            sourceType: 'recording',
-            folder: 'Aulas Gravadas',
+        const newRecording: RecordedClass = {
+            id: `rec-${Date.now()}`,
+            title: `Gravação de ${new Date().toLocaleString()}`,
+            date: new Date(),
+            transcription,
+            summary: {
+                id: `sum-rec-${Date.now()}`,
+                title: `Resumo da Gravação de ${new Date().toLocaleString()}`,
+                content: summaryContent,
+                sourceId: `rec-${Date.now()}`,
+                sourceType: 'recording',
+                folder: 'Aulas Gravadas',
+            }
+        };
+        addRecording(newRecording);
+    } catch (error: any) {
+        if (error.message === "GEMINI_API_KEY_MISSING") {
+            alert(API_KEY_ERROR_MESSAGE);
+        } else {
+            console.error("Error summarizing transcription:", error);
+            alert("Ocorreu um erro ao gerar o resumo da gravação.");
         }
-    };
-    addRecording(newRecording);
-    setIsSummarizing(false);
+    } finally {
+        setIsSummarizing(false);
+    }
   };
 
   return (
