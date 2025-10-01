@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Summary } from '@/types';
-import { SparklesIcon } from './Icons';
-import Modal from './Modal';
+import { SparklesIcon } from '@/components/Icons';
+import Modal from '@/components/Modal';
 
 interface SummariesProps {
   summaries: Summary[];
