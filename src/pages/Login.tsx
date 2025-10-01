@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { LogoIcon } from '../components/Icons';
+import { LogoIcon } from '@/components/Icons';
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import Sidebar from '../components/Sidebar';
-import Dashboard from '../components/Dashboard';
-import PdfManager from '../components/PdfManager';
-import Summaries from '../components/Summaries';
-import Activities from '../components/Activities';
-import RecordedClasses from '../components/RecordedClasses';
-import Profile from '../components/Profile';
-import { Tab, PdfDocument, Summary as SummaryType, RecordedClass as RecordedClassType, QuizAttempt } from '../types';
+import Sidebar from '@/components/Sidebar';
+import Dashboard from '@/components/Dashboard';
+import PdfManager from '@/components/PdfManager';
+import Summaries from '@/components/Summaries';
+import Activities from '@/components/Activities';
+import RecordedClasses from '@/components/RecordedClasses';
+import Profile from '@/components/Profile';
+import { Tab, PdfDocument, Summary as SummaryType, RecordedClass as RecordedClassType, QuizAttempt } from '@/types';
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState<Tab>('inicio');

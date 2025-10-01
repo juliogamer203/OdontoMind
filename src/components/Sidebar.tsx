@@ -1,7 +1,7 @@
 import React from 'react';
-import { Tab } from '../types';
+import { Tab } from '@/types';
 import { ClipboardListIcon, DocumentIcon, HomeIcon, LogoIcon, MicrophoneIcon, SparklesIcon, UserCircleIcon } from './Icons';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarProps {
   activeTab: Tab;
