@@ -190,9 +190,21 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
       <h2 className="text-3xl font-bold text-slate-800 mb-6">Resultados para "{fileName}"</h2>
       
       <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-slate-700 mb-3">Resumo Gerado</h3>
+          <h3 className="text-2xl font-semibold text-slate-700 mb-1">Resumo Gerado</h3>
+          <p className="text-sm text-slate-500 mb-3">Você pode editar o título do resumo antes de salvar.</p>
+          
+          <input
+            type="text"
+            value={generatedSummary?.title || ''}
+            onChange={(e) => setGeneratedSummary(prev => prev ? { ...prev, title: e.target.value } : null)}
+            className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 mb-3"
+            placeholder="Digite um título para o resumo"
+          />
+
           <div className="prose prose-slate max-w-none bg-slate-50 p-4 rounded-md h-64 overflow-y-auto">
-              <p>{generatedSummary?.content}</p>
+              {generatedSummary?.content.split('\n').filter(p => p.trim() !== '').map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+              ))}
           </div>
       </div>
 
