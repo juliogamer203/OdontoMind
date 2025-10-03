@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { generateSummaryFromText, generateQuestionsFromText } from '@/services/geminiService';
 import { PdfDocument, Question, Summary } from '@/types';
 import { ArrowPathIcon, CheckCircleIcon, SparklesIcon, DocumentArrowUpIcon } from './Icons';
@@ -28,6 +28,8 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument, folders, addFolder
   const [generatedSummary, setGeneratedSummary] = useState<Summary | null>(null);
   const [generatedQuestions, setGeneratedQuestions] = useState<Question[]>([]);
   const [isSaved, setIsSaved] = useState(false);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!folders.includes(folder)) {
@@ -152,6 +154,10 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument, folders, addFolder
     }
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const FolderManager = () => (
     <div>
       <label htmlFor="folder" className="block text-sm font-medium text-slate-700 mb-1">Salvar na pasta</label>
@@ -189,20 +195,22 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument, folders, addFolder
       <h2 className="text-2xl font-bold text-slate-700 mb-4">1. Faça o upload do seu material</h2>
       <div className="space-y-4">
         <div>
-          <label htmlFor="file-upload" className="relative block w-full border-2 border-dashed border-slate-300 rounded-lg p-12 text-center cursor-pointer hover:border-sky-500 transition-colors">
+          <div 
+            onClick={handleUploadClick} 
+            className="relative block w-full border-2 border-dashed border-slate-300 rounded-lg p-12 text-center cursor-pointer hover:border-sky-500 transition-colors"
+          >
             <DocumentArrowUpIcon className="mx-auto h-12 w-12 text-slate-400" />
             <span className="mt-2 block text-sm font-semibold text-slate-700">
               Clique para fazer upload de um PDF
             </span>
-            <input 
-              id="file-upload" 
-              name="file-upload" 
-              type="file" 
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-              accept=".pdf" 
-              onChange={handleFileChange} 
-            />
-          </label>
+          </div>
+          <input 
+            ref={fileInputRef}
+            type="file" 
+            className="hidden" 
+            accept=".pdf" 
+            onChange={handleFileChange} 
+          />
         </div>
         <FolderManager />
       </div>
