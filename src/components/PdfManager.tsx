@@ -17,7 +17,11 @@ interface PdfManagerProps {
 const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
   const [fileName, setFileName] = useState('');
   const [fileContent, setFileContent] = useState('');
+  
+  const [folders, setFolders] = useState(['Endodontia', 'Periodontia', 'Cirurgia', 'Farmacologia']);
   const [folder, setFolder] = useState('Endodontia');
+  const [newFolderName, setNewFolderName] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [generatedSummary, setGeneratedSummary] = useState<Summary | null>(null);
@@ -116,13 +120,63 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
   const resetState = (fullReset: boolean) => {
     setFileName('');
     setFileContent('');
-    if (fullReset) setFolder('Endodontia');
+    if (fullReset) {
+      setFolder(folders[0] || '');
+    }
     setGeneratedSummary(null);
     setGeneratedQuestions([]);
     setIsSaved(false);
     setIsLoading(false);
     setLoadingMessage('');
   }
+
+  const handleAddNewFolder = () => {
+    const trimmedName = newFolderName.trim();
+    if (!trimmedName) {
+      alert('O nome da pasta não pode ser vazio.');
+      return;
+    }
+    if (folders.some(f => f.toLowerCase() === trimmedName.toLowerCase())) {
+      alert('Essa pasta já existe.');
+      return;
+    }
+    const newFolders = [...folders, trimmedName];
+    setFolders(newFolders);
+    setFolder(trimmedName);
+    setNewFolderName('');
+  };
+
+  const FolderManager = () => (
+    <div>
+      <label htmlFor="folder" className="block text-sm font-medium text-slate-700 mb-1">Salvar na pasta</label>
+      <select 
+        id="folder" 
+        value={folder} 
+        onChange={e => setFolder(e.target.value)} 
+        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500"
+      >
+        {folders.map(f => <option key={f} value={f}>{f}</option>)}
+      </select>
+      
+      <div className="mt-3">
+        <div className="flex items-center space-x-2">
+          <input 
+            type="text" 
+            value={newFolderName} 
+            onChange={e => setNewFolderName(e.target.value)}
+            placeholder="Ou crie uma nova pasta..."
+            className="flex-grow w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500"
+          />
+          <button 
+            onClick={handleAddNewFolder} 
+            className="px-4 py-2 bg-slate-600 text-white font-semibold rounded-md hover:bg-slate-700 transition-colors text-sm"
+          >
+            Criar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   const renderInitialView = () => (
     <div className="bg-white p-6 rounded-xl shadow-md max-w-3xl mx-auto">
@@ -137,15 +191,7 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
             <input id="file-upload" name="file-upload" type="file" className="sr-only" accept=".pdf" onChange={handleFileChange} />
           </label>
         </div>
-        <div>
-          <label htmlFor="folder" className="block text-sm font-medium text-slate-700 mb-1">Salvar na pasta</label>
-          <select id="folder" value={folder} onChange={e => setFolder(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500">
-            <option>Endodontia</option>
-            <option>Periodontia</option>
-            <option>Cirurgia</option>
-            <option>Farmacologia</option>
-          </select>
-        </div>
+        <FolderManager />
       </div>
     </div>
   );
@@ -157,16 +203,10 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
         <p className="text-sm font-medium text-slate-600">Arquivo Selecionado:</p>
         <p className="font-semibold text-slate-800 truncate">{fileName}</p>
       </div>
-      <div>
-        <label htmlFor="folder-process" className="block text-sm font-medium text-slate-700 mb-1">Salvar na pasta</label>
-        <select id="folder-process" value={folder} onChange={e => setFolder(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500">
-          <option>Endodontia</option>
-          <option>Periodontia</option>
-          <option>Cirurgia</option>
-          <option>Farmacologia</option>
-        </select>
+      <div className="mb-6">
+        <FolderManager />
       </div>
-      <div className="mt-6 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
         <button
           onClick={() => resetState(true)}
           className="flex-1 bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-lg hover:bg-slate-300 transition duration-300"
