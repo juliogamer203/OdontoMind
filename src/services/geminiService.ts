@@ -116,3 +116,17 @@ PERGUNTA DO USUÁRIO: "${question}"`;
         throw new Error("Falha ao gerar resposta do chat. Verifique o console para mais detalhes.");
     }
 };
+
+export const generateAudioScriptFromSummary = async (summary: string): Promise<string> => {
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: `Transforme o seguinte resumo acadêmico em um roteiro de áudio curto, conversacional e didático para um estudante. Use uma linguagem clara, faça pausas e entonações como se estivesse explicando o conteúdo em um podcast. Não adicione introduções como "Olá e bem-vindo". Vá direto ao ponto principal.\n\n---\n\nRESUMO ORIGINAL:\n"${summary}"`,
+            config: { temperature: 0.7, topP: 0.95, topK: 64 },
+        });
+        return response.text;
+    } catch (error) {
+        console.error("Error generating audio script:", error);
+        throw new Error("Falha ao gerar o roteiro de áudio.");
+    }
+};

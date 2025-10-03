@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Summary } from '@/types';
-import { SparklesIcon, Volume2Icon, StopCircleIcon } from '@/components/Icons';
+import { SparklesIcon, Volume2Icon, StopCircleIcon, ArrowPathIcon } from '@/components/Icons';
 import Modal from '@/components/Modal';
+import { generateAudioScriptFromSummary } from '@/services/geminiService';
+
+const API_KEY_ERROR_MESSAGE = "A chave da API do Gemini não foi configurada. Por favor, adicione sua chave no painel de 'Secrets' à esquerda para usar as funcionalidades de IA.";
 
 interface SummariesProps {
   summaries: Summary[];
@@ -12,8 +15,9 @@ const Summaries: React.FC<SummariesProps> = ({ summaries, folders }) => {
   const [selectedFolder, setSelectedFolder] = useState<string>('all');
   const [viewingSummary, setViewingSummary] = useState<Summary | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isGeneratingScript, setIsGeneratingScript] = useState(false);
+  const [audioScript, setAudioScript] = useState<string | null>(null);
 
-  // Cleanup speech synthesis on component unmount
   useEffect(() => {
     return () => {
       if (window.speechSynthesis.speaking) {
@@ -22,21 +26,52 @@ const Summaries: React.FC<SummariesProps> = ({ summaries, folders }) => {
     };
   }, []);
 
-  const handleToggleAudio = (text: string) => {
+  const playAudio = (text: string) => {
+    if (!('speechSynthesis' in window)) {
+      alert('Desculpe, seu navegador não suporta a síntese de voz.');
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'pt-BR';
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      console.error("Speech synthesis error");
+    };
+    window.speechSynthesis.speak(utterance);
+    setIsSpeaking(true);
+  };
+
+  const handleToggleAudio = async () => {
     if (isSpeaking) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
-    } else {
-      if (!('speechSynthesis' in window)) {
-        alert('Desculpe, seu navegador não suporta a síntese de voz.');
-        return;
+      return;
+    }
+
+    if (audioScript) {
+      playAudio(audioScript);
+      return;
+    }
+
+    if (!viewingSummary) return;
+
+    setIsGeneratingScript(true);
+    try {
+      const script = await generateAudioScriptFromSummary(viewingSummary.content);
+      setAudioScript(script);
+      playAudio(script);
+    } catch (error: any) {
+      console.error("Error handling audio generation:", error);
+      if (error.message === "GEMINI_API_KEY_MISSING") {
+        alert(API_KEY_ERROR_MESSAGE);
+      } else {
+        alert("Não foi possível gerar o roteiro de áudio. Tentando ler o resumo original.");
+        // Fallback to original summary
+        playAudio(viewingSummary.content);
       }
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'pt-BR';
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false); // Handle potential errors
-      window.speechSynthesis.speak(utterance);
-      setIsSpeaking(true);
+    } finally {
+      setIsGeneratingScript(false);
     }
   };
 
@@ -46,11 +81,23 @@ const Summaries: React.FC<SummariesProps> = ({ summaries, folders }) => {
     }
     setIsSpeaking(false);
     setViewingSummary(null);
+    setAudioScript(null);
+    setIsGeneratingScript(false);
   };
 
   const filteredSummaries = selectedFolder === 'all' 
     ? summaries 
     : summaries.filter(s => s.folder === selectedFolder);
+
+  const getButtonContent = () => {
+    if (isGeneratingScript) {
+      return <><ArrowPathIcon className="w-5 h-5 mr-2 animate-spin" /> Gerando...</>;
+    }
+    if (isSpeaking) {
+      return <><StopCircleIcon className="w-5 h-5 mr-2" /> Parar Áudio</>;
+    }
+    return <><Volume2Icon className="w-5 h-5 mr-2" /> Ouvir com IA</>;
+  };
 
   return (
     <div className="p-4 md:p-8">
@@ -106,18 +153,11 @@ const Summaries: React.FC<SummariesProps> = ({ summaries, folders }) => {
           footer={
             <div className="flex justify-end">
               <button 
-                onClick={() => handleToggleAudio(viewingSummary.content)}
-                className={`flex items-center justify-center font-bold py-2 px-4 rounded-lg transition w-40 ${isSpeaking ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-sky-600 hover:bg-sky-700 text-white'}`}
+                onClick={handleToggleAudio}
+                disabled={isGeneratingScript}
+                className={`flex items-center justify-center font-bold py-2 px-4 rounded-lg transition w-40 ${isSpeaking || isGeneratingScript ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-sky-600 hover:bg-sky-700 text-white'} disabled:bg-slate-400`}
               >
-                {isSpeaking ? (
-                  <>
-                    <StopCircleIcon className="w-5 h-5 mr-2" /> Parar Áudio
-                  </>
-                ) : (
-                  <>
-                    <Volume2Icon className="w-5 h-5 mr-2" /> Ouvir Resumo
-                  </>
-                )}
+                {getButtonContent()}
               </button>
             </div>
           }
