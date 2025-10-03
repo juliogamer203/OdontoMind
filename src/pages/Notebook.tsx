@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Notebook as NotebookType, PdfDocument, ChatMessage, Source } from '@/types';
+import { Notebook as NotebookType, PdfDocument, ChatMessage, Source, Summary, Question } from '@/types';
 import { ArrowPathIcon, DocumentArrowUpIcon } from '@/components/Icons';
-import { generateChatResponse } from '@/services/geminiService';
+import { generateChatResponse, generateSummaryFromText, generateQuestionsFromText } from '@/services/geminiService';
 import Modal from '@/components/Modal';
 import * as pdfjsLib from 'pdfjs-dist';
 
@@ -54,15 +54,40 @@ const Notebook: React.FC<NotebookProps> = ({ notebooks, documents, addDocument }
         const textContent = await page.getTextContent();
         fullText += textContent.items.map(item => ('str' in item ? item.str : '')).join(' ') + '\n';
       }
-      addDocument({
-        id: `doc-${Date.now()}`,
+
+      setLoadingMessage(`Analisando ${file.name} com IA...`);
+
+      const [summaryContent, questions] = await Promise.all([
+        generateSummaryFromText(fullText),
+        generateQuestionsFromText(fullText)
+      ]);
+
+      const docId = `doc-${Date.now()}`;
+      const newDoc: PdfDocument = {
+        id: docId,
         name: file.name,
         content: fullText,
         folder: notebook?.name || 'Unknown',
-      }, notebookId);
-    } catch (error) {
+        summary: {
+          id: `sum-${docId}`,
+          title: `Resumo de ${file.name}`,
+          content: summaryContent,
+          sourceId: docId,
+          sourceType: 'pdf',
+          folder: notebook?.name || 'Unknown',
+        },
+        questions: questions,
+      };
+
+      addDocument(newDoc, notebookId);
+
+    } catch (error: any) {
       console.error('Error processing PDF:', error);
-      alert('Ocorreu um erro ao processar o PDF.');
+      if (error.message === "GEMINI_API_KEY_MISSING") {
+        alert(API_KEY_ERROR_MESSAGE);
+      } else {
+        alert('Ocorreu um erro ao processar o PDF com a IA. O documento não foi adicionado.');
+      }
     } finally {
       setIsLoading(false);
     }
