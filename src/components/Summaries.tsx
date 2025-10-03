@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Summary } from '@/types';
-import { SparklesIcon } from '@/components/Icons';
+import { SparklesIcon, Volume2Icon, StopCircleIcon } from '@/components/Icons';
 import Modal from '@/components/Modal';
 
 interface SummariesProps {
@@ -11,6 +11,42 @@ interface SummariesProps {
 const Summaries: React.FC<SummariesProps> = ({ summaries, folders }) => {
   const [selectedFolder, setSelectedFolder] = useState<string>('all');
   const [viewingSummary, setViewingSummary] = useState<Summary | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // Cleanup speech synthesis on component unmount
+  useEffect(() => {
+    return () => {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const handleToggleAudio = (text: string) => {
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    } else {
+      if (!('speechSynthesis' in window)) {
+        alert('Desculpe, seu navegador não suporta a síntese de voz.');
+        return;
+      }
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'pt-BR';
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false); // Handle potential errors
+      window.speechSynthesis.speak(utterance);
+      setIsSpeaking(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+    setViewingSummary(null);
+  };
 
   const filteredSummaries = selectedFolder === 'all' 
     ? summaries 
@@ -64,7 +100,28 @@ const Summaries: React.FC<SummariesProps> = ({ summaries, folders }) => {
       )}
 
       {viewingSummary && (
-        <Modal title={viewingSummary.title} onClose={() => setViewingSummary(null)}>
+        <Modal 
+          title={viewingSummary.title} 
+          onClose={handleCloseModal}
+          footer={
+            <div className="flex justify-end">
+              <button 
+                onClick={() => handleToggleAudio(viewingSummary.content)}
+                className={`flex items-center justify-center font-bold py-2 px-4 rounded-lg transition w-40 ${isSpeaking ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-sky-600 hover:bg-sky-700 text-white'}`}
+              >
+                {isSpeaking ? (
+                  <>
+                    <StopCircleIcon className="w-5 h-5 mr-2" /> Parar Áudio
+                  </>
+                ) : (
+                  <>
+                    <Volume2Icon className="w-5 h-5 mr-2" /> Ouvir Resumo
+                  </>
+                )}
+              </button>
+            </div>
+          }
+        >
           <div className="prose prose-slate max-w-none text-left">
             <p>{viewingSummary.content}</p>
           </div>

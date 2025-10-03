@@ -4,9 +4,10 @@ interface ModalProps {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
+  footer?: React.ReactNode;
 }
 
-const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
+const Modal: React.FC<ModalProps> = ({ title, onClose, children, footer }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
@@ -19,6 +20,11 @@ const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
         <div className="p-6 overflow-y-auto">
           {children}
         </div>
+        {footer && (
+          <div className="p-6 border-t bg-slate-50 rounded-b-xl">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );
