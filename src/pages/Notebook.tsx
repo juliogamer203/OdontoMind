@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Notebook as NotebookType, PdfDocument, Question, Summary } from '@/types';
+import { Notebook as NotebookType, PdfDocument, ChatMessage } from '@/types';
 import { ArrowPathIcon, DocumentArrowUpIcon, SparklesIcon } from '@/components/Icons';
-import { generateSummaryFromText, generateQuestionsFromText } from '@/services/geminiService';
+import { generateChatResponse } from '@/services/geminiService';
 import * as pdfjsLib from 'pdfjs-dist';
 
 // Set up the worker for Vite
@@ -25,6 +25,18 @@ const Notebook: React.FC<NotebookProps> = ({ notebooks, documents, addDocument }
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Chat state
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { role: 'model', content: 'Olá! Faça uma pergunta sobre os documentos neste notebook.' }
+  ]);
+  const [userInput, setUserInput] = useState('');
+  const [isAnswering, setIsAnswering] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -45,12 +57,7 @@ const Notebook: React.FC<NotebookProps> = ({ notebooks, documents, addDocument }
         const textContent = await page.getTextContent();
         fullText += textContent.items.map(item => ('str' in item ? item.str : '')).join(' ') + '\n';
       }
-
-      setLoadingMessage(`Analisando ${file.name} com IA...`);
       
-      // We can still generate summary/questions on upload, or do it on demand later.
-      // For now, let's keep it simple and just add the document.
-      // A full implementation would generate these too.
       const newDoc: PdfDocument = {
         id: `doc-${Date.now()}`,
         name: file.name,
@@ -71,6 +78,35 @@ const Notebook: React.FC<NotebookProps> = ({ notebooks, documents, addDocument }
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userInput.trim() || isAnswering) return;
+
+    const newUserMessage: ChatMessage = { role: 'user', content: userInput };
+    setMessages(prev => [...prev, newUserMessage]);
+    setUserInput('');
+    setIsAnswering(true);
+
+    try {
+      const context = notebookDocuments.map(doc => `--- Documento: ${doc.name} ---\n${doc.content}`).join('\n\n');
+      if (context.trim() === '') {
+        throw new Error("NO_DOCUMENTS");
+      }
+      const response = await generateChatResponse(userInput, context);
+      setMessages(prev => [...prev, { role: 'model', content: response }]);
+    } catch (error: any) {
+      let errorMessage = "Desculpe, ocorreu um erro ao tentar responder.";
+      if (error.message === "GEMINI_API_KEY_MISSING") {
+        errorMessage = API_KEY_ERROR_MESSAGE;
+      } else if (error.message === "NO_DOCUMENTS") {
+        errorMessage = "Por favor, adicione pelo menos um documento a este notebook antes de fazer uma pergunta.";
+      }
+      setMessages(prev => [...prev, { role: 'model', content: errorMessage }]);
+    } finally {
+      setIsAnswering(false);
+    }
   };
 
   if (!notebook) {
@@ -128,16 +164,40 @@ const Notebook: React.FC<NotebookProps> = ({ notebooks, documents, addDocument }
           {/* Chat Interface */}
           <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-md flex flex-col">
              <h2 className="text-2xl font-bold text-slate-700 mb-4">Converse com seus documentos</h2>
-             <div className="flex-1 flex items-center justify-center text-center bg-slate-50 rounded-lg">
-                <div className="p-8">
-                    <SparklesIcon className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-slate-600">Interface de Chat em Breve</h3>
-                    <p className="text-slate-500">A próxima etapa será ativar esta área para que você possa fazer perguntas à IA sobre os documentos que adicionou.</p>
-                </div>
+             <div className="flex-1 overflow-y-auto pr-4 space-y-4">
+                {messages.map((msg, index) => (
+                  <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-lg p-3 rounded-xl ${msg.role === 'user' ? 'bg-sky-600 text-white' : 'bg-slate-200 text-slate-800'}`}>
+                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+                  </div>
+                ))}
+                {isAnswering && (
+                  <div className="flex justify-start">
+                    <div className="bg-slate-200 text-slate-800 p-3 rounded-xl">
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce mr-2"></div>
+                        <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce mr-2 [animation-delay:0.1s]"></div>
+                        <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={chatEndRef} />
              </div>
-             <div className="mt-4">
-                <input type="text" placeholder="Sua pergunta..." disabled className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-slate-100 cursor-not-allowed" />
-             </div>
+             <form onSubmit={handleSendMessage} className="mt-4 flex items-center space-x-2">
+                <input 
+                  type="text" 
+                  placeholder="Faça uma pergunta..." 
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  disabled={isAnswering}
+                  className="flex-1 w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:bg-slate-100" 
+                />
+                <button type="submit" disabled={isAnswering || !userInput.trim()} className="bg-sky-600 text-white p-3 rounded-lg hover:bg-sky-700 transition disabled:bg-slate-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                </button>
+             </form>
           </div>
         </div>
       </main>

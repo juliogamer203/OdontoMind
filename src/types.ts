@@ -1,5 +1,10 @@
 export type Tab = 'inicio' | 'notebooks' | 'resumos' | 'atividades' | 'aulas' | 'perfil';
 
+export interface ChatMessage {
+  role: 'user' | 'model';
+  content: string;
+}
+
 export interface Notebook {
   id: string;
   name: string;

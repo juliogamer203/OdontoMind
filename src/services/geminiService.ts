@@ -70,3 +70,31 @@ export const generateQuestionsFromText = async (text: string): Promise<Question[
         throw new Error("Falha ao gerar questões. Verifique o console para mais detalhes.");
     }
 };
+
+export const generateChatResponse = async (question: string, documentsContent: string): Promise<string> => {
+    try {
+        const prompt = `Você é um assistente de estudos especializado em odontologia. Sua tarefa é responder à pergunta do usuário baseando-se exclusivamente no contexto dos documentos de estudo fornecidos. Não utilize conhecimento externo. Se a resposta não estiver contida nos documentos, informe claramente que não encontrou a informação nos materiais fornecidos.
+
+--- CONTEXTO DOS DOCUMENTOS ---
+${documentsContent}
+--- FIM DO CONTEXTO ---
+
+PERGUNTA DO USUÁRIO: "${question}"
+
+Sua Resposta:`;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                temperature: 0.3,
+                topP: 0.95,
+                topK: 64,
+            },
+        });
+        return response.text;
+    } catch (error) {
+        console.error("Error generating chat response:", error);
+        throw new Error("Falha ao gerar resposta do chat. Verifique o console para mais detalhes.");
+    }
+};
