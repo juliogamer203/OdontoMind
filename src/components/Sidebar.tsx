@@ -68,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setI
         <nav>
           <ul>
             <NavItem tabName="inicio" label="Início" icon={<HomeIcon className={iconClass} />} activeTab={activeTab} onClick={handleNavItemClick} />
-            <NavItem tabName="pdfs" label="Meus PDFs" icon={<DocumentIcon className={iconClass} />} activeTab={activeTab} onClick={handleNavItemClick} />
+            <NavItem tabName="notebooks" label="Notebooks" icon={<DocumentIcon className={iconClass} />} activeTab={activeTab} onClick={handleNavItemClick} />
             <NavItem tabName="resumos" label="Resumos" icon={<SparklesIcon className={iconClass} />} activeTab={activeTab} onClick={handleNavItemClick} />
             <NavItem tabName="atividades" label="Atividades" icon={<ClipboardListIcon className={iconClass} />} activeTab={activeTab} onClick={handleNavItemClick} />
             <NavItem tabName="aulas" label="Aulas Gravadas" icon={<MicrophoneIcon className={iconClass} />} activeTab={activeTab} onClick={handleNavItemClick} />

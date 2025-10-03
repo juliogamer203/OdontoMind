@@ -1,42 +1,33 @@
 import React, { useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import Dashboard from '@/components/Dashboard';
-import PdfManager from '@/components/PdfManager';
+import NotebookManager from '@/components/NotebookManager';
 import Summaries from '@/components/Summaries';
 import Activities from '@/components/Activities';
 import RecordedClasses from '@/components/RecordedClasses';
 import Profile from '@/components/Profile';
-import { Tab, PdfDocument, Summary as SummaryType, RecordedClass as RecordedClassType, QuizAttempt } from '@/types';
+import { Tab, PdfDocument, Summary as SummaryType, RecordedClass as RecordedClassType, QuizAttempt, Notebook } from '@/types';
 import { MenuIcon } from '@/components/Icons';
 
-const Home = () => {
+interface HomeProps {
+  notebooks: Notebook[];
+  addNotebook: (name: string) => void;
+  documents: PdfDocument[];
+  recordings: RecordedClassType[];
+  addRecording: (rec: RecordedClassType) => void;
+  quizAttempts: QuizAttempt[];
+  addQuizAttempt: (attempt: QuizAttempt) => void;
+  folders: string[];
+}
+
+const Home: React.FC<HomeProps> = (props) => {
   const [activeTab, setActiveTab] = useState<Tab>('inicio');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [documents, setDocuments] = useState<PdfDocument[]>([]);
-  const [recordings, setRecordings] = useState<RecordedClassType[]>([]);
-  const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>([]);
-  const [folders, setFolders] = useState(['Endodontia', 'Periodontia', 'Cirurgia', 'Farmacologia']);
 
-  const addDocument = (doc: PdfDocument) => {
-    setDocuments(prev => [...prev, doc]);
-  };
-  
-  const addRecording = (rec: RecordedClassType) => {
-    setRecordings(prev => [...prev, rec]);
-  };
-  
-  const addQuizAttempt = (attempt: QuizAttempt) => {
-    setQuizAttempts(prev => [...prev, attempt]);
-  };
-
-  const addFolder = (folderName: string): boolean => {
-    const trimmedName = folderName.trim();
-    if (folders.some(f => f.toLowerCase() === trimmedName.toLowerCase())) {
-      return false; // Folder already exists
-    }
-    setFolders(prev => [...prev, trimmedName]);
-    return true; // Success
-  };
+  const {
+    notebooks, addNotebook, documents, recordings, addRecording,
+    quizAttempts, addQuizAttempt, folders
+  } = props;
 
   const allSummaries: SummaryType[] = [
     ...documents.map(d => d.summary).filter((s): s is SummaryType => !!s),
@@ -47,8 +38,8 @@ const Home = () => {
     switch (activeTab) {
       case 'inicio':
         return <Dashboard summaries={allSummaries} quizAttempts={quizAttempts} setActiveTab={setActiveTab} />;
-      case 'pdfs':
-        return <PdfManager addDocument={addDocument} folders={folders} addFolder={addFolder} />;
+      case 'notebooks':
+        return <NotebookManager notebooks={notebooks} addNotebook={addNotebook} />;
       case 'resumos':
         return <Summaries summaries={allSummaries} folders={folders} />;
       case 'atividades':
@@ -65,7 +56,7 @@ const Home = () => {
   const getPageTitle = (tab: Tab) => {
     const titles: Record<Tab, string> = {
       inicio: 'Início',
-      pdfs: 'Meus PDFs',
+      notebooks: 'Notebooks',
       resumos: 'Resumos',
       atividades: 'Atividades',
       aulas: 'Aulas Gravadas',

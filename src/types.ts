@@ -1,4 +1,10 @@
-export type Tab = 'inicio' | 'pdfs' | 'resumos' | 'atividades' | 'aulas' | 'perfil';
+export type Tab = 'inicio' | 'notebooks' | 'resumos' | 'atividades' | 'aulas' | 'perfil';
+
+export interface Notebook {
+  id: string;
+  name: string;
+  documentIds: string[];
+}
 
 export interface PdfDocument {
   id: string;
@@ -6,11 +12,11 @@ export interface PdfDocument {
   content: string;
   summary?: Summary;
   questions?: Question[];
-  folder: string;
+  folder: string; // This can represent the notebook name or another category
 }
 
 export interface Summary {
-  id: string;
+  id:string;
   title: string;
   content: string;
   sourceId: string; // ID of PdfDocument or RecordedClass
