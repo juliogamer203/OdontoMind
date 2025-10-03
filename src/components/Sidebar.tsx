@@ -65,6 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           </svg>
           <span className="ml-4 font-medium">Sair</span>
         </button>
+        <p className="text-center text-xs text-slate-500 mt-4">beta 0.0.1</p>
       </div>
     </aside>
   );
