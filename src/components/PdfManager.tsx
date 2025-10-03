@@ -194,7 +194,14 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument, folders, addFolder
             <span className="mt-2 block text-sm font-semibold text-slate-700">
               Clique para fazer upload de um PDF
             </span>
-            <input id="file-upload" name="file-upload" type="file" className="sr-only" accept=".pdf" onChange={handleFileChange} />
+            <input 
+              id="file-upload" 
+              name="file-upload" 
+              type="file" 
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+              accept=".pdf" 
+              onChange={handleFileChange} 
+            />
           </label>
         </div>
         <FolderManager />
