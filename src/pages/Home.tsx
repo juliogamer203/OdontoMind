@@ -15,6 +15,7 @@ const Home = () => {
   const [documents, setDocuments] = useState<PdfDocument[]>([]);
   const [recordings, setRecordings] = useState<RecordedClassType[]>([]);
   const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>([]);
+  const [folders, setFolders] = useState(['Endodontia', 'Periodontia', 'Cirurgia', 'Farmacologia']);
 
   const addDocument = (doc: PdfDocument) => {
     setDocuments(prev => [...prev, doc]);
@@ -28,6 +29,15 @@ const Home = () => {
     setQuizAttempts(prev => [...prev, attempt]);
   };
 
+  const addFolder = (folderName: string): boolean => {
+    const trimmedName = folderName.trim();
+    if (folders.some(f => f.toLowerCase() === trimmedName.toLowerCase())) {
+      return false; // Folder already exists
+    }
+    setFolders(prev => [...prev, trimmedName]);
+    return true; // Success
+  };
+
   const allSummaries: SummaryType[] = [
     ...documents.map(d => d.summary).filter((s): s is SummaryType => !!s),
     ...recordings.map(r => r.summary).filter((s): s is SummaryType => !!s),
@@ -38,9 +48,9 @@ const Home = () => {
       case 'inicio':
         return <Dashboard summaries={allSummaries} quizAttempts={quizAttempts} setActiveTab={setActiveTab} />;
       case 'pdfs':
-        return <PdfManager addDocument={addDocument} />;
+        return <PdfManager addDocument={addDocument} folders={folders} addFolder={addFolder} />;
       case 'resumos':
-        return <Summaries summaries={allSummaries} />;
+        return <Summaries summaries={allSummaries} folders={folders} />;
       case 'atividades':
         return <Activities documents={documents} addQuizAttempt={addQuizAttempt} />;
       case 'aulas':

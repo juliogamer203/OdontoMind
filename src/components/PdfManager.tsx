@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { generateSummaryFromText, generateQuestionsFromText } from '@/services/geminiService';
 import { PdfDocument, Question, Summary } from '@/types';
 import { ArrowPathIcon, CheckCircleIcon, SparklesIcon, DocumentArrowUpIcon } from './Icons';
@@ -12,14 +12,15 @@ const API_KEY_ERROR_MESSAGE = "A chave da API do Gemini não foi configurada. Po
 
 interface PdfManagerProps {
   addDocument: (doc: PdfDocument) => void;
+  folders: string[];
+  addFolder: (folderName: string) => boolean;
 }
 
-const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
+const PdfManager: React.FC<PdfManagerProps> = ({ addDocument, folders, addFolder }) => {
   const [fileName, setFileName] = useState('');
   const [fileContent, setFileContent] = useState('');
   
-  const [folders, setFolders] = useState(['Endodontia', 'Periodontia', 'Cirurgia', 'Farmacologia']);
-  const [folder, setFolder] = useState('Endodontia');
+  const [folder, setFolder] = useState(folders[0] || '');
   const [newFolderName, setNewFolderName] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +28,12 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
   const [generatedSummary, setGeneratedSummary] = useState<Summary | null>(null);
   const [generatedQuestions, setGeneratedQuestions] = useState<Question[]>([]);
   const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    if (!folders.includes(folder)) {
+      setFolder(folders[0] || '');
+    }
+  }, [folders, folder]);
   
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -108,7 +115,7 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
           id: generatedSummary.sourceId,
           name: fileName,
           content: fileContent,
-          summary: generatedSummary,
+          summary: { ...generatedSummary, folder: folder },
           questions: generatedQuestions,
           folder: folder,
       };
@@ -136,14 +143,13 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
       alert('O nome da pasta não pode ser vazio.');
       return;
     }
-    if (folders.some(f => f.toLowerCase() === trimmedName.toLowerCase())) {
+    const success = addFolder(trimmedName);
+    if (success) {
+      setFolder(trimmedName);
+      setNewFolderName('');
+    } else {
       alert('Essa pasta já existe.');
-      return;
     }
-    const newFolders = [...folders, trimmedName];
-    setFolders(newFolders);
-    setFolder(trimmedName);
-    setNewFolderName('');
   };
 
   const FolderManager = () => (

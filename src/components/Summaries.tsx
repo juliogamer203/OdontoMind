@@ -5,10 +5,10 @@ import Modal from '@/components/Modal';
 
 interface SummariesProps {
   summaries: Summary[];
+  folders: string[];
 }
 
-const Summaries: React.FC<SummariesProps> = ({ summaries }) => {
-  const folders = [...new Set(summaries.map(s => s.folder))];
+const Summaries: React.FC<SummariesProps> = ({ summaries, folders }) => {
   const [selectedFolder, setSelectedFolder] = useState<string>('all');
   const [viewingSummary, setViewingSummary] = useState<Summary | null>(null);
 
