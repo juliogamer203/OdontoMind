@@ -1,5 +1,5 @@
 {
-  "name": "OdontoMind",
+  "name": "odontomind",
   "description": "An intelligent learning application for Dentistry and Health Sciences students, featuring AI-powered PDF analysis, real-time class summaries, and interactive quizzes.",
   "requestFramePermissions": [
     "microphone"
