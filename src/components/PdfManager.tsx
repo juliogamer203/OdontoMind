@@ -254,7 +254,7 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument, folders, addFolder
           </div>
       </div>
 
-      <div>
+      <div className="mb-8">
           <h3 className="text-xl md:text-2xl font-semibold text-slate-700 mb-3">Questões Geradas</h3>
           <div className="space-y-4 h-64 overflow-y-auto pr-2">
               {generatedQuestions.map((q) => (
@@ -272,7 +272,11 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument, folders, addFolder
           </div>
       </div>
       
-      <div className="mt-8 flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+      <div className="border-t pt-6">
+        <FolderManager />
+      </div>
+
+      <div className="mt-6 flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
         <button
           onClick={handleSave}
           disabled={isSaved}
