@@ -166,7 +166,7 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
           <option>Farmacologia</option>
         </select>
       </div>
-      <div className="mt-6 flex space-x-4">
+      <div className="mt-6 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
         <button
           onClick={() => resetState(true)}
           className="flex-1 bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-lg hover:bg-slate-300 transition duration-300"
@@ -186,11 +186,11 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
   );
 
   const renderResultsView = () => (
-    <div className="bg-white p-8 rounded-xl shadow-lg animate-fade-in">
-      <h2 className="text-3xl font-bold text-slate-800 mb-6">Resultados para "{fileName}"</h2>
+    <div className="bg-white p-4 md:p-8 rounded-xl shadow-lg animate-fade-in">
+      <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6">Resultados para "{fileName}"</h2>
       
       <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-slate-700 mb-1">Resumo Gerado</h3>
+          <h3 className="text-xl md:text-2xl font-semibold text-slate-700 mb-1">Resumo Gerado</h3>
           <p className="text-sm text-slate-500 mb-3">Você pode editar o título do resumo antes de salvar.</p>
           
           <input
@@ -209,7 +209,7 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
       </div>
 
       <div>
-          <h3 className="text-2xl font-semibold text-slate-700 mb-3">Questões Geradas</h3>
+          <h3 className="text-xl md:text-2xl font-semibold text-slate-700 mb-3">Questões Geradas</h3>
           <div className="space-y-4 h-64 overflow-y-auto pr-2">
               {generatedQuestions.map((q) => (
                   <div key={q.id} className="bg-slate-50 p-4 rounded-md">
@@ -226,17 +226,17 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
           </div>
       </div>
       
-      <div className="mt-8 flex items-center space-x-4">
+      <div className="mt-8 flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
         <button
           onClick={handleSave}
           disabled={isSaved}
-          className="flex-1 bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition duration-300 disabled:bg-green-400 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto flex-1 bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition duration-300 disabled:bg-green-400 disabled:cursor-not-allowed"
         >
           {isSaved ? 'Salvo com Sucesso!' : 'Salvar Resumo e Questões'}
         </button>
          <button
           onClick={() => resetState(true)}
-          className="flex-1 bg-slate-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-600 transition duration-300"
+          className="w-full sm:w-auto flex-1 bg-slate-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-600 transition duration-300"
         >
           Processar Outro Documento
         </button>
@@ -260,8 +260,8 @@ const PdfManager: React.FC<PdfManagerProps> = ({ addDocument }) => {
   }
 
   return (
-    <div className="p-8 h-full overflow-y-auto">
-      <h1 className="text-4xl font-bold text-slate-800 mb-6">Leitor de PDF Inteligente</h1>
+    <div className="p-4 md:p-8">
+      <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6">Leitor de PDF Inteligente</h1>
       {renderContent()}
     </div>
   );

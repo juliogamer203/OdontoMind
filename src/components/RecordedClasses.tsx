@@ -177,25 +177,25 @@ const RecordedClasses: React.FC<{
   };
 
   return (
-    <div className="p-8 h-full flex flex-col">
-      <h1 className="text-4xl font-bold text-slate-800 mb-6">Gravador de Aulas</h1>
+    <div className="p-4 md:p-8 flex flex-col min-h-full">
+      <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6">Gravador de Aulas</h1>
 
-      <div className="flex-grow flex flex-col items-center justify-center bg-white p-8 rounded-xl shadow-lg">
+      <div className="flex-grow flex flex-col items-center justify-center bg-white p-6 md:p-8 rounded-xl shadow-lg">
         {!isRecording ? (
           <button
             onClick={startRecording}
-            className="flex flex-col items-center justify-center w-48 h-48 bg-sky-100 text-sky-700 rounded-full hover:bg-sky-200 transition-all duration-300 shadow-md hover:shadow-xl"
+            className="flex flex-col items-center justify-center w-36 h-36 md:w-48 md:h-48 bg-sky-100 text-sky-700 rounded-full hover:bg-sky-200 transition-all duration-300 shadow-md hover:shadow-xl"
           >
-            <MicrophoneIcon className="w-16 h-16" />
-            <span className="mt-4 text-xl font-bold">Iniciar Gravação</span>
+            <MicrophoneIcon className="w-12 h-12 md:w-16 md:h-16" />
+            <span className="mt-4 text-lg md:text-xl font-bold">Iniciar Gravação</span>
           </button>
         ) : (
           <button
             onClick={stopAndSummarize}
-            className="flex flex-col items-center justify-center w-48 h-48 bg-red-100 text-red-700 rounded-full hover:bg-red-200 transition-all duration-300 shadow-md hover:shadow-xl animate-pulse"
+            className="flex flex-col items-center justify-center w-36 h-36 md:w-48 md:h-48 bg-red-100 text-red-700 rounded-full hover:bg-red-200 transition-all duration-300 shadow-md hover:shadow-xl animate-pulse"
           >
-            <StopIcon className="w-16 h-16" />
-            <span className="mt-4 text-xl font-bold">Parar & Resumir</span>
+            <StopIcon className="w-12 h-12 md:w-16 md:h-16" />
+            <span className="mt-4 text-lg md:text-xl font-bold">Parar & Resumir</span>
           </button>
         )}
         {error && <p className="text-red-500 mt-4">{error}</p>}
@@ -203,13 +203,13 @@ const RecordedClasses: React.FC<{
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
         <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-2xl font-bold text-slate-700 mb-4">Transcrição em Tempo Real</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-slate-700 mb-4">Transcrição</h2>
             <div className="h-48 bg-slate-50 p-4 rounded-md overflow-y-auto text-slate-700">
                 {transcription || <span className="text-slate-400">Aguardando fala...</span>}
             </div>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-2xl font-bold text-slate-700 mb-4">Resumo da Aula</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-slate-700 mb-4">Resumo da Aula</h2>
             <div className="h-48 bg-slate-50 p-4 rounded-md overflow-y-auto text-slate-700">
                 {isSummarizing ? (
                     <div className="flex items-center justify-center h-full">

@@ -17,11 +17,11 @@ const Summaries: React.FC<SummariesProps> = ({ summaries }) => {
     : summaries.filter(s => s.folder === selectedFolder);
 
   return (
-    <div className="p-8 h-full overflow-y-auto">
-      <h1 className="text-4xl font-bold text-slate-800 mb-6">Meus Resumos</h1>
+    <div className="p-4 md:p-8">
+      <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6">Meus Resumos</h1>
 
-      <div className="mb-6">
-        <div className="flex space-x-2 border-b border-slate-300">
+      <div className="mb-6 overflow-x-auto">
+        <div className="flex space-x-2 border-b border-slate-300 whitespace-nowrap">
           <button 
             onClick={() => setSelectedFolder('all')} 
             className={`px-4 py-2 font-medium text-sm transition ${selectedFolder === 'all' ? 'border-b-2 border-sky-500 text-sky-600' : 'text-slate-500 hover:text-slate-700'}`}

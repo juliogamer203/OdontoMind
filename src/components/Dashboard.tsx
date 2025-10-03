@@ -13,17 +13,17 @@ const Dashboard: React.FC<DashboardProps> = ({ summaries, quizAttempts, setActiv
   const recentAttempts = quizAttempts.slice(-3).reverse();
 
   return (
-    <div className="p-8">
-      <h1 className="text-4xl font-bold text-slate-800 mb-2">Bem-vindo(a) ao OdontoMind!</h1>
+    <div className="p-4 md:p-8">
+      <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Bem-vindo(a) ao OdontoMind!</h1>
       <p className="text-slate-600 mb-10">Sua central de estudos inteligente. Pronto para começar?</p>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         
         {/* Recent Summaries */}
         <div className="bg-white p-6 rounded-xl shadow-md">
           <div className="flex items-center mb-4">
             <SparklesIcon className="w-7 h-7 text-sky-500" />
-            <h2 className="text-2xl font-bold text-slate-700 ml-3">Resumos Recentes</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-slate-700 ml-3">Resumos Recentes</h2>
           </div>
           {recentSummaries.length > 0 ? (
             <ul className="space-y-3">
@@ -46,7 +46,7 @@ const Dashboard: React.FC<DashboardProps> = ({ summaries, quizAttempts, setActiv
         <div className="bg-white p-6 rounded-xl shadow-md">
           <div className="flex items-center mb-4">
             <ClipboardListIcon className="w-7 h-7 text-amber-500" />
-            <h2 className="text-2xl font-bold text-slate-700 ml-3">Atividades Recentes</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-slate-700 ml-3">Atividades Recentes</h2>
           </div>
           {recentAttempts.length > 0 ? (
             <ul className="space-y-3">

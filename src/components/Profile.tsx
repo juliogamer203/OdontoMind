@@ -74,8 +74,8 @@ const Profile: React.FC<{ quizAttempts: QuizAttempt[] }> = ({ quizAttempts }) =>
     : 0;
 
   return (
-    <div className="p-8 h-full overflow-y-auto">
-      <h1 className="text-4xl font-bold text-slate-800 mb-8">Meu Perfil</h1>
+    <div className="p-4 md:p-8">
+      <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-8">Meu Perfil</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 bg-white p-6 rounded-xl shadow-md flex flex-col items-center text-center">

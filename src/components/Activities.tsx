@@ -69,7 +69,7 @@ const Activities: React.FC<ActivitiesProps> = ({ documents, addQuizAttempt }) =>
   }
 
   const renderQuizSelector = () => (
-    <div className="max-w-md mx-auto text-center bg-white p-8 rounded-xl shadow-lg">
+    <div className="w-full max-w-md mx-auto text-center bg-white p-8 rounded-xl shadow-lg">
       <ClipboardListIcon className="w-16 h-16 mx-auto text-amber-500 mb-4"/>
       <h2 className="text-3xl font-bold text-slate-800 mb-2">Iniciar Simulado</h2>
       <p className="text-slate-600 mb-6">Escolha um tópico para testar seus conhecimentos.</p>
@@ -91,9 +91,9 @@ const Activities: React.FC<ActivitiesProps> = ({ documents, addQuizAttempt }) =>
     const question = currentQuestions[currentQuestionIndex];
     const userAnswer = userAnswers[currentQuestionIndex];
     return (
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg animate-fade-in">
+      <div className="w-full max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-xl shadow-lg animate-fade-in">
         <p className="text-sm text-slate-500 mb-2">Questão {currentQuestionIndex + 1} de {currentQuestions.length}</p>
-        <h3 className="text-2xl font-semibold text-slate-800 mb-6">{question.question}</h3>
+        <h3 className="text-xl md:text-2xl font-semibold text-slate-800 mb-6">{question.question}</h3>
         <div className="space-y-3">
           {question.options.map(option => {
             const isSelected = userAnswer === option;
@@ -123,7 +123,7 @@ const Activities: React.FC<ActivitiesProps> = ({ documents, addQuizAttempt }) =>
   };
   
   const renderQuizFinished = () => (
-    <div className="max-w-md mx-auto text-center bg-white p-8 rounded-xl shadow-lg animate-fade-in">
+    <div className="w-full max-w-md mx-auto text-center bg-white p-8 rounded-xl shadow-lg animate-fade-in">
         <h2 className="text-3xl font-bold text-slate-800 mb-2">Simulado Concluído!</h2>
         <p className="text-slate-600 mb-6">Veja seu desempenho:</p>
         <div className="my-8">
@@ -137,7 +137,7 @@ const Activities: React.FC<ActivitiesProps> = ({ documents, addQuizAttempt }) =>
   );
 
   return (
-    <div className="p-8 h-full flex items-center justify-center">
+    <div className="p-4 md:p-8 flex items-center justify-center min-h-full">
       {quizState === 'selecting' && renderQuizSelector()}
       {quizState === 'active' && renderActiveQuiz()}
       {quizState === 'finished' && renderQuizFinished()}
